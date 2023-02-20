@@ -9,6 +9,12 @@ services:
       - "4567:4567"
     volumes:
       - ./backend-flask:/backend-flask
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4567/api/message_groups"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
   frontend-react-js:
     environment:
       REACT_APP_BACKEND_URL: "https://4567-${GITPOD_WORKSPACE_ID}.${GITPOD_WORKSPACE_CLUSTER_HOST}"
@@ -17,6 +23,12 @@ services:
       - "3000:3000"
     volumes:
       - ./frontend-react-js:/frontend-react-js
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
 
 # the name flag is a hack to change the default prepend folder
 # name when outputting the image names
