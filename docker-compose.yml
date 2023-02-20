@@ -30,7 +30,7 @@ services:
       retries: 3
       start_period: 15s
 
-  db:ls
+  db:
   
     image: postgres:13-alpine
     restart: always
