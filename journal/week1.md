@@ -12,7 +12,7 @@ docker container run --rm --env-file ./env-list -p 4567:4567  jeffry/cruddur-bac
 </br>
 </br>
 </br>
-Run the dockerfile CMD as an external script I’ve created a [init.sh](http://init.sh) script containing the flask run command.
+Run the dockerfile CMD as an external script I’ve created a init.sh script containing the flask run command.
 I tried to use both CMD and ENTRYPOINT to run the init.sh script. Both worked successfully.
 I prefer to use ENTRYPOINT option because the image is dedicated to run the flask command.
 </br>
