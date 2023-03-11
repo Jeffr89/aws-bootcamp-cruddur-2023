@@ -31,6 +31,9 @@ services:
       REACT_APP_AWS_PROJECT_REGION: ${AWS_DEFAULT_REGION}"
       REACT_APP_AWS_COGNITO_REGION: ${AWS_DEFAULT_REGION}"
       REACT_APP_AWS_USER_POOLS_ID: "eu-central-1_IO0KeJAjV"
+      # OTEL_EXPORTER_OTLP_ENDPOINT: "https://api.honeycomb.io"
+      # OTEL_EXPORTER_OTLP_HEADERS: "x-honeycomb-team=${HONEYCOMB_API_KEY}"
+      # OTEL_SERVICE_NAME: "cruddur-frontend-react"
     build: ./frontend-react-js
     ports:
       - "3000:3000"
@@ -79,8 +82,22 @@ services:
     ports:
       - 2000:2000/udp
 
+  # Collector
+  otel-collector:
+    image: otel/opentelemetry-collector
+    command: [--config=/etc/otel-collector-config.yaml]
+    volumes:
+      - ./otel-collector-config.yaml:/etc/otel-collector-config.yaml
+    ports:
+      - 1888:1888 # pprof extension
+      - 8888:8888 # Prometheus metrics exposed by the collector
+      - 8889:8889 # Prometheus exporter metrics
+      - 13133:13133 # health_check extension
+      - 4317:4317 # OTLP gRPC receiver
+      - 4318:4318 # OTLP http receiver
+      - 55679:55679 # zpages extension
 
-  
+  #####TOOOODOOO
 volumes:
   db:
     driver: local

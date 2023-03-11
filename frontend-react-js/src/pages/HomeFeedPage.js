@@ -10,6 +10,8 @@ import ReplyForm from '../components/ReplyForm';
 // [TODO] Authenication
 import Cookies from 'js-cookie'
 
+import { trace, context, } from '@opentelemetry/api';
+
 
 
 export default function HomeFeedPage() {
@@ -20,6 +22,8 @@ export default function HomeFeedPage() {
   const [user, setUser] = React.useState(null);
   const dataFetchedRef = React.useRef(false);
 
+  const tracer = trace.getTracer();
+  const span = tracer.startSpan("getActivitiesHome");
   const loadData = async () => {
     try {
       const backend_url = `${process.env.REACT_APP_BACKEND_URL}/api/activities/home`
@@ -33,8 +37,10 @@ export default function HomeFeedPage() {
         console.log(res)
       }
     } catch (err) {
+      span.addEvent("Failed the backend call");
       console.log(err);
     }
+    span.end();
   };
 
   const checkAuth = async () => {
