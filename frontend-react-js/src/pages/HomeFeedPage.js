@@ -39,7 +39,9 @@ export default function HomeFeedPage() {
     } catch (err) {
       span.addEvent("Failed the backend call");
       console.log(err);
+      span.end();
     }
+    span.addEvent("fetched homefeed");
     span.end();
   };
 

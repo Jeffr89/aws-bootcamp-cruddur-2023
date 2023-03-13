@@ -26,14 +26,12 @@ services:
       start_period: 15s
   frontend-react-js:
     environment:
+      OTEL_URL: "https://4318-${GITPOD_WORKSPACE_ID}.${GITPOD_WORKSPACE_CLUSTER_HOST}"
       REACT_APP_BACKEND_URL: "https://4567-${GITPOD_WORKSPACE_ID}.${GITPOD_WORKSPACE_CLUSTER_HOST}"
       REACT_APP_CLIENT_ID: "4i18nr5d2s6nobj25afh0tbuph"
       REACT_APP_AWS_PROJECT_REGION: ${AWS_DEFAULT_REGION}"
       REACT_APP_AWS_COGNITO_REGION: ${AWS_DEFAULT_REGION}"
       REACT_APP_AWS_USER_POOLS_ID: "eu-central-1_IO0KeJAjV"
-      # OTEL_EXPORTER_OTLP_ENDPOINT: "https://api.honeycomb.io"
-      # OTEL_EXPORTER_OTLP_HEADERS: "x-honeycomb-team=${HONEYCOMB_API_KEY}"
-      # OTEL_SERVICE_NAME: "cruddur-frontend-react"
     build: ./frontend-react-js
     ports:
       - "3000:3000"
@@ -96,8 +94,12 @@ services:
       - 4317:4317 # OTLP gRPC receiver
       - 4318:4318 # OTLP http receiver
       - 55679:55679 # zpages extension
+    environment:
+      HONEYCOMB_API_KEY: ${HONEYCOMB_API_KEY}
+      FRONTEND_URL: "https://3000-${GITPOD_WORKSPACE_ID}.${GITPOD_WORKSPACE_CLUSTER_HOST}"
+      BACKEND_URL: "https://4567-${GITPOD_WORKSPACE_ID}.${GITPOD_WORKSPACE_CLUSTER_HOST}"
 
-  #####TOOOODOOO
+
 volumes:
   db:
     driver: local
