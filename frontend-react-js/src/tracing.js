@@ -29,12 +29,15 @@ import { Resource } from '@opentelemetry/resources'
 import { ZoneContextManager } from '@opentelemetry/context-zone'
 import { FetchInstrumentation } from '@opentelemetry/instrumentation-fetch'
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http'
+import { XMLHttpRequestInstrumentation } from '@opentelemetry/instrumentation-xml-http-request';
+
 
 export const initInstrumentation = () => {
   const exporter = new OTLPTraceExporter({
-    url: `https://4318-jeffr89-awsbootcampcrud-k06olg5hr1d.ws-eu90.gitpod.io:443/v1/traces`,
+    url: `${process.env.REACT_APP_TRACE_URL}:443/v1/traces`,
+    
   })
-
+  
   const resource = new Resource({
     [SemanticResourceAttributes.SERVICE_NAME]: 'cruddur-frontend',
     application: 'cruddur-frontend',
@@ -52,12 +55,18 @@ export const initInstrumentation = () => {
   // Registering instrumentations / plugins
   registerInstrumentations({
     instrumentations: [
+      new XMLHttpRequestInstrumentation({
+        propagateTraceHeaderCorsUrls: [
+           /.+/g, //Regex to match your backend urls. This should be updated.
+        ]
+      }),
       new FetchInstrumentation({
-        propagateTraceHeaderCorsUrls: [/.+/g], // this is too broad for production
-        clearTimingResources: true,
+        propagateTraceHeaderCorsUrls: [
+           /.+/g, //Regex to match your backend urls. This should be updated.
+        ]
       }),
     ],
-  })
+  });
 }
 
 initInstrumentation()

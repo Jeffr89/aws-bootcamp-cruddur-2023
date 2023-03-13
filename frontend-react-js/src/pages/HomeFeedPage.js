@@ -24,6 +24,7 @@ export default function HomeFeedPage() {
 
   const tracer = trace.getTracer();
   const span = tracer.startSpan("getActivitiesHome");
+  span.setAttribute('user', "test id");
   const loadData = async () => {
     try {
       const backend_url = `${process.env.REACT_APP_BACKEND_URL}/api/activities/home`
