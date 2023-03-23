@@ -6,7 +6,8 @@ receivers:
       http: # port 4318
         cors:
           allowed_origins:
-            - "*.gitpod.io"
+            - ${FRONTEND_URL_HTTPS}
+            - ${FRONTEND_URL_HTTP}
         include_metadata: true
 
 

@@ -57,12 +57,12 @@ export const initInstrumentation = () => {
     instrumentations: [
       new XMLHttpRequestInstrumentation({
         propagateTraceHeaderCorsUrls: [
-           /.+/g, //Regex to match your backend urls. This should be updated.
+          new RegExp(`${process.env.REACT_APP_BACKEND_URL}`, 'g')
         ]
       }),
       new FetchInstrumentation({
         propagateTraceHeaderCorsUrls: [
-           /.+/g, //Regex to match your backend urls. This should be updated.
+          new RegExp(`${process.env.REACT_APP_BACKEND_URL}`, 'g')
         ]
       }),
     ],
