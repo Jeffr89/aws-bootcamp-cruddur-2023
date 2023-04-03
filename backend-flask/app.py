@@ -14,6 +14,8 @@ from services.messages import *
 from services.create_message import *
 from services.show_activity import *
 
+from lib.cognito_token_verification import CognitoTokenVerification
+ 
 # Honeycomb OTL imports
 from opentelemetry import trace
 from opentelemetry.instrumentation.flask import FlaskInstrumentor
@@ -62,14 +64,27 @@ xray_url = os.getenv("AWS_XRAY_URL")
 xray_recorder.configure(service='Cruddur', dynamic_naming=xray_url)
 XRayMiddleware(app, xray_recorder)
 
+cognito_token_verification = CognitoTokenVerification(
+  user_pool_id= os.getenv("AWS_COGNITO_USER_POOL_ID"), 
+  user_pool_client_id= os.getenv("AWS_COGNITO_USER_POOL_CLIENT_SECRET"), 
+  region= os.getenv("AWS_DEFAULT_REGION"))
+
 frontend = os.getenv('FRONTEND_URL')
 backend = os.getenv('BACKEND_URL')
 origins = [frontend, backend]
+# cors = CORS(
+#   app, 
+#   resources={r"/api/*": {"origins": origins}},
+#   expose_headers="location,link",
+#   allow_headers=["content-type", "if-modified-since", "traceparent"],
+#   methods="OPTIONS,GET,HEAD,POST"
+# )
+
 cors = CORS(
   app, 
   resources={r"/api/*": {"origins": origins}},
-  expose_headers="location,link",
-  allow_headers=["content-type", "if-modified-since", "traceparent"],
+  headers=['Content-Type', 'Authorization'], 
+  expose_headers='Authorization',
   methods="OPTIONS,GET,HEAD,POST"
 )
 
