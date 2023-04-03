@@ -4,7 +4,7 @@ from opentelemetry import trace
 tracer = trace.get_tracer("home.activities")
 
 class HomeActivities:
-  def run():
+  def run(cognito_user_id=None):
     #logger.info('Hello Cloudwatch! from  /api/activities/home')
     with tracer.start_as_current_span("home-activities-mock-data"):
       span = trace.get_current_span()
@@ -49,6 +49,18 @@ class HomeActivities:
         'replies': []
       }
       ]
+      if cognito_user_id is not None:
+        extra_crud={
+          'uuid': '66e12864-8c26-4c3a-9658-95a10f8fea67',
+          'handle':  'Wooow!',
+          'message': 'Someone is authenticated, you know?',
+          'created_at': (now - timedelta(days=7)).isoformat(),
+          'expires_at': (now + timedelta(days=9)).isoformat(),
+          'likes': 0,
+          'replies': []
+        }
+        results.insert(0, extra_crud)
+
       span.set_attribute("app.result-lenght", len(results))
       return results
       
