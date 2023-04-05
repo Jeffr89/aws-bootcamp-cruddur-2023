@@ -15,6 +15,7 @@ from services.create_message import *
 from services.show_activity import *
 
 from lib.cognito_token_verification import CognitoJwtToken, TokenVerifyError, FlaskAWSCognitoError
+from middleware.authz import cognito_verify_jwt_with_token
  
 # Honeycomb OTL imports
 from opentelemetry import trace
@@ -151,6 +152,22 @@ def data_create_message():
     return model['data'], 200
   return
 
+# @app.route("/api/activities/home", methods=['GET'])
+# def data_home():
+  
+#   access_token = CognitoJwtToken.extract_access_token(request.headers)
+#   try:
+#       cognito_jwt_token.verify(access_token)
+#       app.logger.debug(cognito_jwt_token.claims["username"])
+#       data = HomeActivities.run(cognito_jwt_token.claims["username"])
+#   except TokenVerifyError as e:
+#       app.logger.debug(e)
+#       _ = request.data
+#       data = HomeActivities.run()
+#       # abort(make_response(jsonify(message=str(e)), 401))
+
+#   return data, 200
+
 @app.route("/api/activities/home", methods=['GET'])
 def data_home():
   
@@ -165,11 +182,12 @@ def data_home():
       data = HomeActivities.run()
       # abort(make_response(jsonify(message=str(e)), 401))
 
-  
   return data, 200
 
 @app.route("/api/activities/notifications", methods=['GET'])
+@cognito_verify_jwt_with_token(cognito_jwt_token, app)
 def data_notifications():
+  # app.logger.debug(CognitoJwtToken.extract_access_token(request.headers))
   data = NotificationsActivities.run()
   return data, 200
 
