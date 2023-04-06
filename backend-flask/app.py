@@ -16,7 +16,9 @@ from services.show_activity import *
 
 from lib.cognito_token_verification import CognitoJwtToken, TokenVerifyError, FlaskAWSCognitoError
 from middleware.authz import cognito_verify_jwt_with_token
- 
+from middleware.authz_via_sidecar import cognito_verify_jwt_via_sidecar_given_token
+
+
 # Honeycomb OTL imports
 from opentelemetry import trace
 from opentelemetry.instrumentation.flask import FlaskInstrumentor
@@ -174,7 +176,7 @@ def data_home():
   access_token = CognitoJwtToken.extract_access_token(request.headers)
   try:
       cognito_jwt_token.verify(access_token)
-      app.logger.debug(cognito_jwt_token.claims["username"])
+      app.logger.debug(access_token)
       data = HomeActivities.run(cognito_jwt_token.claims["username"])
   except TokenVerifyError as e:
       app.logger.debug(e)
@@ -184,10 +186,19 @@ def data_home():
 
   return data, 200
 
+
+# #DECOUPLED JWT VERIFY FROM APPLICATION CODE USING A MIDDLEWARE
+# @app.route("/api/activities/notifications", methods=['GET'])
+# @cognito_verify_jwt_with_token(cognito_jwt_token, app)
+# def data_notifications():
+#   # app.logger.debug(CognitoJwtToken.extract_access_token(request.headers))
+#   data = NotificationsActivities.run()
+#   return data, 200
+
+
 @app.route("/api/activities/notifications", methods=['GET'])
-@cognito_verify_jwt_with_token(cognito_jwt_token, app)
+@cognito_verify_jwt_via_sidecar_given_token(cognito_jwt_token, app)
 def data_notifications():
-  # app.logger.debug(CognitoJwtToken.extract_access_token(request.headers))
   data = NotificationsActivities.run()
   return data, 200
 
