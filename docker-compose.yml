@@ -62,6 +62,22 @@ services:
     volumes:
       - ./jwt-verify-sidecar:/jwt-verify-sidecar
 
+  envoy:
+    image: envoyproxy/envoy:v1.25-latest
+    environment:
+      REACT_APP_TRACE_URL: "https://4318-${GITPOD_WORKSPACE_ID}.${GITPOD_WORKSPACE_CLUSTER_HOST}"
+      REACT_APP_BACKEND_URL: "https://4567-${GITPOD_WORKSPACE_ID}.${GITPOD_WORKSPACE_CLUSTER_HOST}"
+      AWS_COGNITO_CLIENT_ID: "5nvou0p7c39cbhvhjad9sm4ud5"
+      AWS_PROJECT_REGION: ${AWS_DEFAULT_REGION}"
+      AWS_COGNITO_REGION: ${AWS_DEFAULT_REGION}"
+      AWS_COGNITO_USER_POOLS_ID: "eu-central-1_cSQ42ZwgR"
+    ports:
+      - "9901:9901"
+      - "8080:8080"
+    volumes:
+      - ./envoy/:/etc/envoy/
+    command: ["envoy", "-c", "/etc/envoy/envoy.yaml", "--log-level", "debug"]
+
   db:
   
     image: postgres:13-alpine

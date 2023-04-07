@@ -196,8 +196,18 @@ def data_home():
 #   return data, 200
 
 
+# # #DECOUPLET JWT VERIFY WITH CONTAINER SIDECAR
+# @app.route("/api/activities/notifications", methods=['GET'])
+# @cognito_verify_jwt_via_sidecar_given_token(cognito_jwt_token, app)
+# def data_notifications():
+#   data = NotificationsActivities.run()
+#   return data, 200
+@app.route("/", methods=['GET'])
+def default_route():
+  data = NotificationsActivities.run()
+  return data, 200
+
 @app.route("/api/activities/notifications", methods=['GET'])
-@cognito_verify_jwt_via_sidecar_given_token(cognito_jwt_token, app)
 def data_notifications():
   data = NotificationsActivities.run()
   return data, 200

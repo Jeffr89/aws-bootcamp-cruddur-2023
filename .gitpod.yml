@@ -24,7 +24,11 @@ tasks:
     command: |
       cd frontend-react-js
       npm i
+  - name: install apt packages
+    command: |
+      sudo apt install -y telnet
 
+  
 ports:
   - name: frontend
     port: 3000
