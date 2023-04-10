@@ -1,5 +1,5 @@
 import './HomeFeedPage.css';
-import React from "react";
+import React, { useEffect } from 'react';
 import { Auth } from 'aws-amplify';
 import DesktopNavigation  from '../components/DesktopNavigation';
 import DesktopSidebar     from '../components/DesktopSidebar';
@@ -7,11 +7,30 @@ import ActivityFeed from '../components/ActivityFeed';
 import ActivityForm from '../components/ActivityForm';
 import ReplyForm from '../components/ReplyForm';
 
+import axios from 'axios';
+
 // [TODO] Authenication
 import Cookies from 'js-cookie'
 
 import { trace, context, } from '@opentelemetry/api';
 
+async function signInWithFacebook(code, redirectUri) {
+  try {
+    const user = await Auth.federatedSignIn(
+      'facebook',
+      {
+        code,
+        redirectUri
+      },
+      {
+        // Additional user attributes if needed
+      }
+    );
+    console.log('User signed in:', user);
+  } catch (error) {
+    console.error('Error signing in:', error);
+  }
+}
 
 
 export default function HomeFeedPage() {
@@ -50,6 +69,46 @@ export default function HomeFeedPage() {
     span.end();
   };
 
+  const FacebookLogin =  async () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const code = urlParams.get('code');
+      console.log("TEST");
+  
+      if (code) {
+        signInWithFacebook(code, 'https://3000-jeffr89-awsbootcampcrud-sti34fwn23h.ws-eu93.gitpod.io')
+        // exchangeCodeForTokens(code);
+      }
+    };
+  
+    const exchangeCodeForTokens = async (code) => {
+      const clientId = process.env.REACT_APP_CLIENT_ID ;
+      const redirectUri = 'https://3000-jeffr89-awsbootcampcrud-sti34fwn23h.ws-eu93.gitpod.io';
+      const url = `https://cruddur.auth.eu-central-1.amazoncognito.com/oauth2/token`;
+      const headers = {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      };
+      
+      const data = new URLSearchParams({
+        grant_type: 'authorization_code',
+        client_id: clientId,
+        redirect_uri: redirectUri,
+        code: code,
+      });
+      console.log(clientId)
+      try {
+        const response = await axios.post(url, data.toString(), { headers });
+        const accessToken = response.data.access_token;
+        const idToken = response.data.id_token;
+  
+        console.log('Access Token:', accessToken);
+        console.log('ID Token:', idToken);
+      } catch (error) {
+        console.error('Error exchanging code for tokens:', error);
+      }
+    };
+  
+    
+
   const checkAuth = async () => {
     Auth.currentAuthenticatedUser({
       // Optional, By default is false. 
@@ -76,6 +135,7 @@ export default function HomeFeedPage() {
 
     loadData();
     checkAuth();
+    FacebookLogin();
   }, [])
 
   return (

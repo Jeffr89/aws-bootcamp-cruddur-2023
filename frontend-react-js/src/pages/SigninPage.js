@@ -3,8 +3,8 @@ import React from "react";
 import {ReactComponent as Logo} from '../components/svg/logo.svg';
 import { Link } from "react-router-dom";
 import { Auth } from 'aws-amplify';
-// [TODO] Authenication
-import Cookies from 'js-cookie'
+
+
 
 export default function SigninPage() {
 
@@ -13,6 +13,7 @@ export default function SigninPage() {
   const [errors, setErrors] = React.useState('');
   const [cognitoErrors, setCognitoErrors] = React.useState('');
 
+  
 
   const onsubmit = async (event) => {
     setErrors('')
@@ -47,6 +48,7 @@ export default function SigninPage() {
   }
 
   return (
+    
     <article className="signin-article">
       <div className='signin-info'>
         <Logo className='logo' />
@@ -88,8 +90,15 @@ export default function SigninPage() {
           </span>
           <Link to="/signup">Sign up!</Link>
         </div>
+
+        
       </div>
+     
 
     </article>
+
+    
+    
+    
   );
 }
