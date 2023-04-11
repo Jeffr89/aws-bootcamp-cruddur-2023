@@ -14,23 +14,6 @@ import Cookies from 'js-cookie'
 
 import { trace, context, } from '@opentelemetry/api';
 
-async function signInWithFacebook(code, redirectUri) {
-  try {
-    const user = await Auth.federatedSignIn(
-      'facebook',
-      {
-        code,
-        redirectUri
-      },
-      {
-        // Additional user attributes if needed
-      }
-    );
-    console.log('User signed in:', user);
-  } catch (error) {
-    console.error('Error signing in:', error);
-  }
-}
 
 
 export default function HomeFeedPage() {
@@ -75,14 +58,14 @@ export default function HomeFeedPage() {
       console.log("TEST");
   
       if (code) {
-        signInWithFacebook(code, 'https://3000-jeffr89-awsbootcampcrud-sti34fwn23h.ws-eu93.gitpod.io')
+        exchangeCodeForTokens(code);
         // exchangeCodeForTokens(code);
       }
     };
   
     const exchangeCodeForTokens = async (code) => {
       const clientId = process.env.REACT_APP_CLIENT_ID ;
-      const redirectUri = 'https://3000-jeffr89-awsbootcampcrud-sti34fwn23h.ws-eu93.gitpod.io';
+      const redirectUri = 'https://3000-jeffr89-awsbootcampcrud-ypj7wgkcewv.ws-eu93.gitpod.io/';
       const url = `https://cruddur.auth.eu-central-1.amazoncognito.com/oauth2/token`;
       const headers = {
         'Content-Type': 'application/x-www-form-urlencoded',
