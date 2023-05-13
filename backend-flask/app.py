@@ -65,7 +65,7 @@ RequestsInstrumentor().instrument()
 # Initialize tracing to AWS X-RAY
 xray_url = os.getenv("AWS_XRAY_URL")
 xray_recorder.configure(service='Cruddur', dynamic_naming=xray_url)
-XRayMiddleware(app, xray_recorder)
+# XRayMiddleware(app, xray_recorder)
 
 cognito_jwt_token = CognitoJwtToken(
   user_pool_id= os.getenv("AWS_COGNITO_USER_POOL_ID"), 
