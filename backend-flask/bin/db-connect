@@ -10,5 +10,4 @@ if [ "$1" = "prod" ]; then
 else
   URL=$CONNECTION_URL_POSTGRES
 fi
-
 psql $URL
