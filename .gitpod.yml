@@ -21,6 +21,7 @@ tasks:
       sudo apt update
       sudo apt install -y postgresql-client-13 libpq-dev
       source $THEIA_WORKSPACE_ROOT/backend-flask/bin/rds-update-sg-rule
+      aws rds start-db-instance --db-instance-identifier cruddur-db-instance
   - name: react install
     before: |
       cd frontend-react-js
@@ -28,6 +29,16 @@ tasks:
   - name: install apt packages
     before: |
       sudo apt install -y telnet
+  - name: Shutdown daemon
+    command: |
+      function shutdown() {
+        aws rds stop-db-instance --db-instance-identifier cruddur-db-instance
+      }
+
+      trap 'shutdown; exit' SIGTERM;
+      printf '\033[3J\033c\033[3J%s\n' 'Waiting for SIGTERM ...';
+      exec {sfd}<> <(:);
+      until read -t 3600 -u $sfd; do continue; done;+
 
   
 ports:
