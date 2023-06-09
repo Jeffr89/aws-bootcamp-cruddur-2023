@@ -71,6 +71,9 @@ class CreateActivity:
 
     """
     
-    query_commit(sql)
+    db.query_commit(sql)
+  
+  def query_object_activity():
+    
     
         
