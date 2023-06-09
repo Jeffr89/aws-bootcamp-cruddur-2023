@@ -9,7 +9,7 @@ class DB:
     self.init_pool()
     
   def init_pool(self):
-    connection_url = os.getenv("CONNECTION_URL")
+    connection_url = os.getenv("CONNECTION_URL_POSTGRES")
     self.pool = ConnectionPool(connection_url)
 
   def print_sql(self,title,sql):
@@ -19,8 +19,8 @@ class DB:
     print(sql)
     
   #when we want to commit data such as ana INSERT
-  def query_commit(sql):
-    self.print_sql(sql)
+  def query_commit(self, sql):
+    self.print_sql("commit" , sql)
     try:
         conn = pool.connection()
         cur = conn.cursor() 
@@ -31,8 +31,8 @@ class DB:
           # conn.rollback()
     
   #when we want to return a json object
-  def query_object(sql):
-    self.print_sql(sql)
+  def query_object_json(self, sql):
+    self.print_sql("object", sql)
     wrapped_sql = self.query_wrap_array(sql)
     with self.pool.connection() as conn:
         with conn.cursor() as cur:
@@ -40,10 +40,11 @@ class DB:
           # this will return a tuple
           # the first field being the data
           json = cur.fetchone()
+          return json[0]
     
   #when we want to return an array of json object  
-  def query_array(sql):
-    self.print_sql(sql)
+  def query_array_json(self, sql):
+    self.print_sql("array", sql)
     wrapped_sql = self.query_wrap_object(sql)
     with self.pool.connection() as conn:
         with conn.cursor() as cur:
@@ -69,7 +70,7 @@ class DB:
     print ("pgcode:", err.pgcode, "\n")
     
   
-  def query_wrap_object(template):
+  def query_wrap_object(self,template):
     sql = f"""
     (SELECT COALESCE(row_to_json(object_row),'{{}}'::json) FROM (
     {template}
@@ -77,13 +78,13 @@ class DB:
     """
     return sql
 
-def query_wrap_array(template):
-    sql = f"""
-    (SELECT COALESCE(array_to_json(array_agg(row_to_json(array_row))),'[]'::json) FROM (
-    {template}
-    ) array_row);
-    """
-    return sql
+  def query_wrap_array(self,template):
+      sql = f"""
+      (SELECT COALESCE(array_to_json(array_agg(row_to_json(array_row))),'[]'::json) FROM (
+      {template}
+      ) array_row);
+      """
+      return sql
     
   
     
