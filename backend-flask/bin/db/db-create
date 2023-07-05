@@ -13,5 +13,5 @@ if [ "$1" = "prod" ]; then
 else
   NO_DB_CONNECTION_URL=$(sed 's/\/cruddur//g' <<<"$CONNECTION_URL_POSTGRES")
 fi
-
+echo $NO_DB_CONNECTION_URL -c "CREATE database cruddur;"
 psql $NO_DB_CONNECTION_URL -c "CREATE database cruddur;"
