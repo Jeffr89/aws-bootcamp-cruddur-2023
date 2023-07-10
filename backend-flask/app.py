@@ -14,7 +14,7 @@ from services.messages import *
 from services.create_message import *
 from services.show_activity import *
 
-from lib.cognito_token_verification import CognitoJwtToken, TokenVerifyError, FlaskAWSCognitoError
+from lib.cognito_token_verification import CognitoJwtToken, TokenVerifyError, FlaskAWSCognitoError, extract_access_token
 from middleware.authz import cognito_verify_jwt_with_token
 from middleware.authz_via_sidecar import cognito_verify_jwt_via_sidecar_given_token
 
@@ -72,9 +72,9 @@ cognito_jwt_token = CognitoJwtToken(
   user_pool_client_id= os.getenv("AWS_COGNITO_USER_POOL_CLIENT_ID"), 
   region= os.getenv("AWS_DEFAULT_REGION"))
 
-frontend = os.getenv('FRONTEND_URL')
-backend = os.getenv('BACKEND_URL')
-origins = [frontend, backend]
+# frontend = os.getenv('FRONTEND_URL')
+# backend = os.getenv('BACKEND_URL')
+# origins = [frontend, backend]
 # cors = CORS(
 #   app, 
 #   resources={r"/api/*": {"origins": origins}},
@@ -83,6 +83,9 @@ origins = [frontend, backend]
 #   methods="OPTIONS,GET,HEAD,POST"
 # )
 
+frontend = os.getenv('FRONTEND_URL')
+backend = os.getenv('BACKEND_URL')
+origins = [frontend, backend]
 cors = CORS(
   app, 
   resources={r"/api/*": {"origins": origins}},
@@ -120,13 +123,26 @@ def rollbar_test():
     
 @app.route("/api/message_groups", methods=['GET'])
 def data_message_groups():
-  user_handle  = 'andrewbrown'
-  model = MessageGroups.run(user_handle=user_handle)
-  if model['errors'] is not None:
-    return model['errors'], 422
-  else:
-    return model['data'], 200
-
+  access_token = extract_access_token(request.headers)
+  try:
+    claims = cognito_jwt_token.verify(access_token)
+    # authenicatied request
+    app.logger.debug("authenicated")
+    app.logger.debug(claims)
+    cognito_user_id = claims['sub']
+    app.logger.debug(cognito_user_id)
+    model = MessageGroups.run(app, cognito_user_id=cognito_user_id)
+    if model['errors'] is not None:
+      return model['errors'], 422
+    else:
+      return model['data'], 200
+  except TokenVerifyError as e:
+    # unauthenicatied request
+    app.logger.debug(e)
+    return {}, 401
+  
+  
+  
 @app.route("/api/messages/@<string:handle>", methods=['GET'])
 def data_messages(handle):
   user_sender_handle = 'andrewbrown'
@@ -171,7 +187,7 @@ def data_create_message():
 
 @app.route("/api/activities/home", methods=['GET'])
 def data_home():
-  access_token = CognitoJwtToken.extract_access_token(request.headers)
+  access_token = extract_access_token(request.headers)
   try:
       cognito_jwt_token.verify(access_token)
       # app.logger.debug(access_token)

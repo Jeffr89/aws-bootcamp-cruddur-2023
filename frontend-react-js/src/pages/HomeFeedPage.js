@@ -1,20 +1,12 @@
 import './HomeFeedPage.css';
-import React, { useEffect } from 'react';
-import { Auth } from 'aws-amplify';
+import React from "react";
+
 import DesktopNavigation  from '../components/DesktopNavigation';
 import DesktopSidebar     from '../components/DesktopSidebar';
 import ActivityFeed from '../components/ActivityFeed';
 import ActivityForm from '../components/ActivityForm';
 import ReplyForm from '../components/ReplyForm';
-
-import axios from 'axios';
-
-// [TODO] Authenication
-import Cookies from 'js-cookie'
-
-import { trace, context, } from '@opentelemetry/api';
-
-
+import checkAuth from '../lib/CheckAuth';
 
 export default function HomeFeedPage() {
   const [activities, setActivities] = React.useState([]);
@@ -23,10 +15,6 @@ export default function HomeFeedPage() {
   const [replyActivity, setReplyActivity] = React.useState({});
   const [user, setUser] = React.useState(null);
   const dataFetchedRef = React.useRef(false);
-
-  const tracer = trace.getTracer();
-  const span = tracer.startSpan("getActivitiesHome");
-  span.setAttribute('user', "test id");
 
   const loadData = async () => {
     try {
@@ -44,81 +32,19 @@ export default function HomeFeedPage() {
         console.log(res)
       }
     } catch (err) {
-      span.addEvent("Failed the backend call");
       console.log(err);
-      span.end();
     }
-    span.addEvent("fetched homefeed");
-    span.end();
   };
 
-  const FacebookLogin =  async () => {
-      const urlParams = new URLSearchParams(window.location.search);
-      const code = urlParams.get('code');
-      console.log("TEST");
-  
-      if (code) {
-        exchangeCodeForTokens(code);
-        // exchangeCodeForTokens(code);
-      }
-    };
-  
-    const exchangeCodeForTokens = async (code) => {
-      const clientId = process.env.REACT_APP_CLIENT_ID ;
-      const redirectUri = 'https://3000-jeffr89-awsbootcampcrud-ypj7wgkcewv.ws-eu93.gitpod.io/';
-      const url = `https://cruddur.auth.eu-central-1.amazoncognito.com/oauth2/token`;
-      const headers = {
-        'Content-Type': 'application/x-www-form-urlencoded',
-      };
-      
-      const data = new URLSearchParams({
-        grant_type: 'authorization_code',
-        client_id: clientId,
-        redirect_uri: redirectUri,
-        code: code,
-      });
-      console.log(clientId)
-      try {
-        const response = await axios.post(url, data.toString(), { headers });
-        const accessToken = response.data.access_token;
-        const idToken = response.data.id_token;
-  
-        console.log('Access Token:', accessToken);
-        console.log('ID Token:', idToken);
-      } catch (error) {
-        console.error('Error exchanging code for tokens:', error);
-      }
-    };
-  
-    
 
-  const checkAuth = async () => {
-    Auth.currentAuthenticatedUser({
-      // Optional, By default is false. 
-      // If set to true, this call will send a 
-      // request to Cognito to get the latest user data
-      bypassCache: false 
-    })
-    .then((user) => {
-      console.log('user',user);
-      return Auth.currentAuthenticatedUser()
-    }).then((cognito_user) => {
-        setUser({
-          display_name: cognito_user.attributes.name,
-          handle: cognito_user.attributes.preferred_username
-        })
-    })
-    .catch((err) => console.log(err));
-  };
-
+  
   React.useEffect(()=>{
     //prevents double call
     if (dataFetchedRef.current) return;
     dataFetchedRef.current = true;
 
     loadData();
-    checkAuth();
-    FacebookLogin();
+    checkAuth(setUser);
   }, [])
 
   return (

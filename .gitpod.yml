@@ -41,6 +41,10 @@ tasks:
       printf '\033[3J\033c\033[3J%s\n' 'Waiting for SIGTERM ...';
       exec {sfd}<> <(:);
       until read -t 3600 -u $sfd; do continue; done;+
+  - name: flask
+    command: |
+      cd backend-flask
+      pip install -r requirements.txt
 
   
 ports:

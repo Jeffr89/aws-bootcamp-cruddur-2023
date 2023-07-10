@@ -2,8 +2,9 @@ version: "3.8"
 services:
   backend-flask:
     environment:
-      #CONNECTION_URL_POSTGRES: "postgresql://postgres:password@db:5432/cruddur"
-      CONNECTION_URL_POSTGRES: "${PROD_CONNECTION_URL_POSTGRES}"
+      AWS_ENDPOINT_URL: "http://localhost:8000"
+      CONNECTION_URL_POSTGRES: "postgresql://postgres:password@db:5432/cruddur"
+      # CONNECTION_URL_POSTGRES: "${PROD_CONNECTION_URL_POSTGRES}"
       FRONTEND_URL: "https://3000-${GITPOD_WORKSPACE_ID}.${GITPOD_WORKSPACE_CLUSTER_HOST}"
       BACKEND_URL: "https://4567-${GITPOD_WORKSPACE_ID}.${GITPOD_WORKSPACE_CLUSTER_HOST}"
       OTEL_EXPORTER_OTLP_ENDPOINT: "https://api.honeycomb.io"
@@ -85,17 +86,17 @@ services:
   #     - ./envoy/:/etc/envoy/
   #   command: ["envoy", "-c", "/etc/envoy/envoy.yaml", "--log-level", "debug"]
 
-  # db:
+  db:
   
-  #   image: postgres:13-alpine
-  #   restart: always
-  #   environment:
-  #     - POSTGRES_USER=postgres
-  #     - POSTGRES_PASSWORD=password
-  #   ports:
-  #     - '5432:5432'
-  #   volumes: 
-  #     - db:/var/lib/postgresql/data
+    image: postgres:13-alpine
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
+    ports:
+      - '5432:5432'
+    volumes: 
+      - db:/var/lib/postgresql/data
 
   dynamodb-local:
     # https://stackoverflow.com/questions/67533058/persist-local-dynamodb-data-in-volumes-lack-permission-unable-to-open-databa
